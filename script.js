@@ -1,25 +1,24 @@
-// script.js — версия со звуком и сохранением имени/сложности
+// script.js — Tetris со звуком, сохранением имени и сложности
 // Подходит к твоему HTML (ids: tetris, next, startBtn, pauseBtn, stopBtn, playerName, difficulty, score, status, scoresTable, resetScores)
 
-///// Настройки и элементы UI
-// Ваши настройки из Firebase (Config)
- const firebaseConfig = {
-    apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
-    authDomain: "tetris-b2119.firebaseapp.com",
-    databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "tetris-b2119",
-    storageBucket: "tetris-b2119.firebasestorage.app",
-    messagingSenderId: "497676585923",
-    appId: "1:497676585923:web:9d08173b3712016876cb76"
-  };
+///// Настройки Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
+  authDomain: "tetris-b2119.firebaseapp.com",
+  databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "tetris-b2119",
+  storageBucket: "tetris-b2119.firebasestorage.app",
+  messagingSenderId: "497676585923",
+  appId: "1:497676585923:web:9d08173b3712016876cb76"
+};
 
 // Инициализация Firebase
 const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database(); // подключаемся к Realtime Database
+const database = firebase.database();
 
-// Проверка подключения
 console.log("✅ Firebase подключен:", firebase.apps.length > 0);
 
+///// UI элементы
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 ctx.scale(20, 20);
@@ -39,7 +38,6 @@ const stopBtn = document.getElementById('stopBtn');
 const resetScoresBtn = document.getElementById('resetScores');
 
 ///// Persistent keys
-const STORAGE_KEY_SCORES = 'tetris_highscores_v2';
 const STORAGE_KEY_SETTINGS = 'tetris_settings_v1';
 
 ///// Game state
@@ -173,19 +171,19 @@ function saveSettings() {
   localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
 }
 
-///// ONLINE LEADERBOARD через Firebase
+///// Firebase leaderboard
 function saveScore(name, scoreVal) {
-  if (!name) name = 'Игрок';
+  const difficulty = Number(diffSelect.value);
   const scoresRef = database.ref('scores');
   scoresRef.push({
-    name,
+    name: name || 'Игрок',
     score: Number(scoreVal) || 0,
+    difficulty,
     date: Date.now()
   });
   updateHighscoresTable();
 }
 
-// Загрузить и показать топ-10 рекордов из Firebase
 function updateHighscoresTable() {
   const scoresRef = database.ref('scores');
   scoresRef.orderByChild('score').limitToLast(10).once('value', snapshot => {
@@ -194,25 +192,13 @@ function updateHighscoresTable() {
     scores.sort((a, b) => b.score - a.score);
 
     scoresTableBody.innerHTML = '';
+    const diffNames = ['Лёгкая','Средняя','Сложная','Эксперт'];
     scores.forEach((item, i) => {
+      const difficultyText = diffNames[item.difficulty] || '—';
       const row = document.createElement('tr');
-      row.innerHTML = `<td>${i + 1}</td><td>${item.name}</td><td>${item.score}</td>`;
+      row.innerHTML = `<td>${i + 1}</td><td>${item.name}</td><td>${item.score}</td><td>${difficultyText}</td>`;
       scoresTableBody.appendChild(row);
     });
-  });
-}
-
-// Функция для загрузки рекордов
-function loadScores(callback) {
-  const scoresRef = database.ref('scores');
-  scoresRef.orderByChild('score').limitToLast(10).on('value', snapshot => {
-    const scores = [];
-    snapshot.forEach(child => {
-      scores.push(child.val());
-    });
-    // Сортировка по убыванию очков
-    scores.sort((a, b) => b.score - a.score);
-    callback(scores);
   });
 }
 
@@ -258,6 +244,7 @@ function drawMatrix(matrix, offset, context, outline = true) {
     });
   });
 }
+
 function draw() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -286,9 +273,7 @@ function collide(arena, player) {
   const [m, o] = [player.matrix, player.pos];
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
-      if (m[y][x] !== 0 &&
-          (arena[y + o.y] &&
-           arena[y + o.y][x + o.x]) !== 0) {
+      if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
     }
@@ -318,7 +303,7 @@ async function playerDrop() {
     player.pos.y--;
     merge(arena, player);
     arenaSweep();
-    await playerReset(); // теперь ждём окончания записи рекорда
+    await playerReset();
     playClick();
   }
   dropCounter = 0;
@@ -353,6 +338,7 @@ function rotate(matrix, dir) {
   if (dir > 0) matrix.forEach(row => row.reverse());
   else matrix.reverse();
 }
+
 async function playerReset() {
   player.matrix = nextPiece;
   nextPiece = randomPiece();
@@ -362,10 +348,7 @@ async function playerReset() {
 
   if (collide(arena, player)) {
     playThud();
-
-    // Сохраняем рекорд и ждём ответа
     await saveScore(playerNameInput.value || 'Игрок', player.score);
-
     arena.forEach(row => row.fill(0));
     player.score = 0;
     updateScore();
@@ -425,11 +408,9 @@ startBtn.addEventListener('click', async () => {
 pauseBtn.addEventListener('click', () => {
   if (!isRunning) return;
   isPaused = !isPaused;
-  if (isPaused) {
-    statusElem.textContent = 'Пауза';
-    cancelAnimationFrame(animationFrameId);
-  } else {
-    statusElem.textContent = 'Игра идёт';
+  statusElem.textContent = isPaused ? 'Пауза' : 'Игра идёт';
+  if (isPaused) cancelAnimationFrame(animationFrameId);
+  else {
     lastTime = performance.now();
     update();
   }
@@ -463,34 +444,3 @@ function initAll() {
   updateSoundButton();
 }
 initAll();
-
-// 💾 Сохранить рекорд игрока в Firebase
-function saveScore(name, score, difficulty) {
-  const ref = db.ref("scores");
-  const newScore = {
-    name: name,
-    score: score,
-    difficulty: difficulty,
-    timestamp: Date.now()
-  };
-  ref.push(newScore);
-}
-
-// 🏆 Загрузить и показать рекорды
-function loadScores() {
-  const ref = db.ref("scores");
-  ref.orderByChild("score").limitToLast(10).on("value", (snapshot) => {
-    const scoresTable = document.querySelector("#scoresTable tbody");
-    scoresTable.innerHTML = "";
-    let scores = [];
-    snapshot.forEach((child) => scores.push(child.val()));
-    scores.reverse(); // чтобы самые большие очки были первыми
-    scores.forEach((s, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${i + 1}</td><td>${s.name}</td><td>${s.score}</td>`;
-      scoresTable.appendChild(tr);
-    });
-  });
-}
-
-// end of file
