@@ -176,6 +176,35 @@ function saveScore(name, score) {
   scoresRef.push({ name, score, date: Date.now() });
 }
 
+///// ONLINE LEADERBOARD через Firebase
+function saveScore(name, scoreVal) {
+  if (!name) name = 'Игрок';
+  const scoresRef = database.ref('scores');
+  scoresRef.push({
+    name,
+    score: Number(scoreVal) || 0,
+    date: Date.now()
+  });
+  updateHighscoresTable();
+}
+
+// Загрузить и показать топ-10 рекордов из Firebase
+function updateHighscoresTable() {
+  const scoresRef = database.ref('scores');
+  scoresRef.orderByChild('score').limitToLast(10).once('value', snapshot => {
+    const scores = [];
+    snapshot.forEach(child => scores.push(child.val()));
+    scores.sort((a, b) => b.score - a.score);
+
+    scoresTableBody.innerHTML = '';
+    scores.forEach((item, i) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${i + 1}</td><td>${item.name}</td><td>${item.score}</td>`;
+      scoresTableBody.appendChild(row);
+    });
+  });
+}
+
 // Функция для загрузки рекордов
 function loadScores(callback) {
   const scoresRef = database.ref('scores');
@@ -194,39 +223,6 @@ function loadScores(callback) {
 function loadScores() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SCORES) || '[]'); }
   catch { return []; }
-}
-///// ONLINE LEADERBOARD через Google Sheets
-const LEADERBOARD_URL = 'https://script.google.com/macros/s/AKfycbzyFyMl55RgKsMpLTUFge-9Kug9JXoxBf5iuMXFxiEdIwD8CG1ym5WOfMyk93ezzzEhlA/exec';
-
-// Сохранить рекорд в онлайн-таблицу
-async function saveScore(name, scoreVal) {
-  if (!name) name = 'Игрок';
-  try {
-    await fetch(LEADERBOARD_URL, {
-      method: 'POST',
-      body: JSON.stringify({ name, score: Number(scoreVal) || 0 }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-    await updateHighscoresTable(); // ждём, пока таблица обновится
-  } catch (err) {
-    console.error('Ошибка отправки рекорда:', err);
-  }
-}
-
-// Загрузить и показать топ-10
-async function updateHighscoresTable() {
-  try {
-    const res = await fetch(LEADERBOARD_URL);
-    const data = await res.json();
-    scoresTableBody.innerHTML = '';
-    data.forEach((item, i) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${i + 1}</td><td>${item.name}</td><td>${item.score}</td>`;
-      scoresTableBody.appendChild(row);
-    });
-  } catch (err) {
-    console.error('Ошибка загрузки рекордов:', err);
-  }
 }
 
 resetScoresBtn.addEventListener('click', () => {
