@@ -442,4 +442,19 @@ function initAll() {
 }
 initAll();
 
+// Ваши настройки из Firebase (Config)
+const firebaseConfig = {
+  apiKey: "ВАШ_API_KEY",
+  authDomain: "ВАШ_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://ВАШ_PROJECT_ID.firebaseio.com",
+  projectId: "ВАШ_PROJECT_ID",
+  storageBucket: "ВАШ_PROJECT_ID.appspot.com",
+  messagingSenderId: "ВАШ_SENDER_ID",
+  appId: "ВАШ_APP_ID"
+};
+
+// Инициализация Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database(); // подключаемся к Realtime Database
+
 // end of file
