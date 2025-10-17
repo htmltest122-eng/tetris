@@ -20,14 +20,6 @@ const database = firebase.database(); // подключаемся к Realtime Da
 // Проверка подключения
 console.log("✅ Firebase подключен:", firebase.apps.length > 0);
 
-// --- Тестовая запись ---
-database.ref("test").set({
-  message: "Привет от Tetris!",
-  timestamp: Date.now()
-})
-.then(() => console.log("✅ Тестовая запись успешно добавлена!"))
-.catch(err => console.error("❌ Ошибка записи:", err));
-
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 ctx.scale(20, 20);
