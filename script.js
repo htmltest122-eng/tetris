@@ -170,12 +170,6 @@ function saveSettings() {
 const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.database(); // подключаемся к Realtime Database
 
-// Функция для сохранения рекорда
-function saveScore(name, score) {
-  const scoresRef = database.ref('scores'); // ссылка на раздел 'scores' в базе
-  scoresRef.push({ name, score, date: Date.now() });
-}
-
 ///// ONLINE LEADERBOARD через Firebase
 function saveScore(name, scoreVal) {
   if (!name) name = 'Игрок';
