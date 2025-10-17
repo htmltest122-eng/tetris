@@ -2,6 +2,32 @@
 // Подходит к твоему HTML (ids: tetris, next, startBtn, pauseBtn, stopBtn, playerName, difficulty, score, status, scoresTable, resetScores)
 
 ///// Настройки и элементы UI
+// Ваши настройки из Firebase (Config)
+ const firebaseConfig = {
+    apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
+    authDomain: "tetris-b2119.firebaseapp.com",
+    databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "tetris-b2119",
+    storageBucket: "tetris-b2119.firebasestorage.app",
+    messagingSenderId: "497676585923",
+    appId: "1:497676585923:web:9d08173b3712016876cb76"
+  };
+
+// Инициализация Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database(); // подключаемся к Realtime Database
+
+// Проверка подключения
+console.log("✅ Firebase подключен:", firebase.apps.length > 0);
+
+// --- Тестовая запись ---
+database.ref("test").set({
+  message: "Привет от Tetris!",
+  timestamp: Date.now()
+})
+.then(() => console.log("✅ Тестовая запись успешно добавлена!"))
+.catch(err => console.error("❌ Ошибка записи:", err));
+
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 ctx.scale(20, 20);
@@ -154,21 +180,6 @@ function saveSettings() {
   };
   localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
 }
-
-// Ваши настройки из Firebase (Config)
- const firebaseConfig = {
-    apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
-    authDomain: "tetris-b2119.firebaseapp.com",
-    databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "tetris-b2119",
-    storageBucket: "tetris-b2119.firebasestorage.app",
-    messagingSenderId: "497676585923",
-    appId: "1:497676585923:web:9d08173b3712016876cb76"
-  };
-
-// Инициализация Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database(); // подключаемся к Realtime Database
 
 ///// ONLINE LEADERBOARD через Firebase
 function saveScore(name, scoreVal) {
