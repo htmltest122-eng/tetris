@@ -155,6 +155,41 @@ function saveSettings() {
   localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
 }
 
+// Ваши настройки из Firebase (Config)
+ const firebaseConfig = {
+    apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
+    authDomain: "tetris-b2119.firebaseapp.com",
+    databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "tetris-b2119",
+    storageBucket: "tetris-b2119.firebasestorage.app",
+    messagingSenderId: "497676585923",
+    appId: "1:497676585923:web:9d08173b3712016876cb76"
+  };
+
+// Инициализация Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database(); // подключаемся к Realtime Database
+
+// Функция для сохранения рекорда
+function saveScore(name, score) {
+  const scoresRef = database.ref('scores'); // ссылка на раздел 'scores' в базе
+  scoresRef.push({ name, score, date: Date.now() });
+}
+
+// Функция для загрузки рекордов
+function loadScores(callback) {
+  const scoresRef = database.ref('scores');
+  scoresRef.orderByChild('score').limitToLast(10).on('value', snapshot => {
+    const scores = [];
+    snapshot.forEach(child => {
+      scores.push(child.val());
+    });
+    // Сортировка по убыванию очков
+    scores.sort((a, b) => b.score - a.score);
+    callback(scores);
+  });
+}
+
 ///// Highscores
 function loadScores() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SCORES) || '[]'); }
@@ -441,20 +476,5 @@ function initAll() {
   updateSoundButton();
 }
 initAll();
-
-// Ваши настройки из Firebase (Config)
- const firebaseConfig = {
-    apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
-    authDomain: "tetris-b2119.firebaseapp.com",
-    databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "tetris-b2119",
-    storageBucket: "tetris-b2119.firebasestorage.app",
-    messagingSenderId: "497676585923",
-    appId: "1:497676585923:web:9d08173b3712016876cb76"
-  };
-
-// Инициализация Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database(); // подключаемся к Realtime Database
 
 // end of file
