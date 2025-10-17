@@ -219,12 +219,6 @@ function loadScores(callback) {
   });
 }
 
-///// Highscores
-function loadScores() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_SCORES) || '[]'); }
-  catch { return []; }
-}
-
 resetScoresBtn.addEventListener('click', () => {
   if (confirm('Сбросить рекорды?')) {
     localStorage.removeItem(STORAGE_KEY_SCORES);
