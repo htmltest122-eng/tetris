@@ -443,15 +443,15 @@ function initAll() {
 initAll();
 
 // Ваши настройки из Firebase (Config)
-const firebaseConfig = {
-  apiKey: "ВАШ_API_KEY",
-  authDomain: "ВАШ_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://ВАШ_PROJECT_ID.firebaseio.com",
-  projectId: "ВАШ_PROJECT_ID",
-  storageBucket: "ВАШ_PROJECT_ID.appspot.com",
-  messagingSenderId: "ВАШ_SENDER_ID",
-  appId: "ВАШ_APP_ID"
-};
+ const firebaseConfig = {
+    apiKey: "AIzaSyCJhN9KOp69QVmNeNJx-ODqTGAzbrukVsM",
+    authDomain: "tetris-b2119.firebaseapp.com",
+    databaseURL: "https://tetris-b2119-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "tetris-b2119",
+    storageBucket: "tetris-b2119.firebasestorage.app",
+    messagingSenderId: "497676585923",
+    appId: "1:497676585923:web:9d08173b3712016876cb76"
+  };
 
 // Инициализация Firebase
 const app = firebase.initializeApp(firebaseConfig);
