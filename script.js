@@ -472,4 +472,16 @@ function initAll() {
 }
 initAll();
 
+// 💾 Сохранить рекорд игрока в Firebase
+function saveScore(name, score, difficulty) {
+  const ref = db.ref("scores");
+  const newScore = {
+    name: name,
+    score: score,
+    difficulty: difficulty,
+    timestamp: Date.now()
+  };
+  ref.push(newScore);
+}
+
 // end of file
