@@ -484,4 +484,21 @@ function saveScore(name, score, difficulty) {
   ref.push(newScore);
 }
 
+// 🏆 Загрузить и показать рекорды
+function loadScores() {
+  const ref = db.ref("scores");
+  ref.orderByChild("score").limitToLast(10).on("value", (snapshot) => {
+    const scoresTable = document.querySelector("#scoresTable tbody");
+    scoresTable.innerHTML = "";
+    let scores = [];
+    snapshot.forEach((child) => scores.push(child.val()));
+    scores.reverse(); // чтобы самые большие очки были первыми
+    scores.forEach((s, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${i + 1}</td><td>${s.name}</td><td>${s.score}</td>`;
+      scoresTable.appendChild(tr);
+    });
+  });
+}
+
 // end of file
