@@ -1,5 +1,4 @@
-// script.js — Tetris со звуком, сохранением имени и сложности
-// Подходит к твоему HTML (ids: tetris, next, startBtn, pauseBtn, stopBtn, playerName, difficulty, score, status, scoresTable, resetScores)
+// script.js — Tetris со звуком, сохранением имени, сложностью и таблицей рекордов
 
 ///// Настройки Firebase
 const firebaseConfig = {
@@ -204,7 +203,8 @@ function updateHighscoresTable() {
 
 resetScoresBtn.addEventListener('click', () => {
   if (confirm('Сбросить рекорды?')) {
-    localStorage.removeItem(STORAGE_KEY_SCORES);
+    const scoresRef = database.ref('scores');
+    scoresRef.remove();
     updateHighscoresTable();
   }
 });
@@ -273,9 +273,7 @@ function collide(arena, player) {
   const [m, o] = [player.matrix, player.pos];
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
-      if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
-        return true;
-      }
+      if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
     }
   }
   return false;
