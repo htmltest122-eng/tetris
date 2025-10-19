@@ -1,1 +1,67 @@
+<!doctype html>
+<html lang="ru">
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Tetris</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- ✅ Firebase 8.x (работает с твоим script.js) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="game">
+            <h1>TETRIS</h1>
+            <canvas id="tetris" width="240" height="400"></canvas>
+            <div class="controls">
+                <button id="startBtn">Старт</button>
+                <button id="pauseBtn">Пауза</button>
+                <button id="stopBtn">Стоп</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <label>Имя игрока:
+                <input type="text" id="playerName" placeholder="Введите имя" maxlength="20">
+            </label>
+
+            <label>Сложность:
+                <select id="difficulty">
+                    <option value="0">Лёгкая</option>
+                    <option value="1" selected>Средняя</option>
+                    <option value="2">Сложная</option>
+                    <option value="3">Эксперт</option>
+                </select>
+            </label>
+
+            <div class="stat">Очки: <span id="score">0</span></div>
+            <div class="stat">Состояние: <span id="status">Ожидание</span></div>
+
+            <h3>Следующая фигура</h3>
+            <canvas id="next" width="120" height="120"></canvas>
+
+            <h3>Таблица рекордов</h3>
+            <table id="scoresTable">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Имя</th>
+      <th>Очки</th>
+      <th>Сложность</th> <!-- добавили -->
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+            <button id="resetScores">Сброс рекордов</button>
+        </div>
+    </div>
+
+    <!-- ✅ Подключаем твой JS после Firebase -->
+    <script src="script.js"></script>
+</body>
+
+</html>
